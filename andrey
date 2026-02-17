@@ -1,0 +1,51 @@
+
+import pandas as pd
+from collections import Counter
+import matplotlib.pyplot as plt
+
+# Данные
+data = pd.DataFrame({
+    'id': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'text': [
+        'Отличный товар, очень доволен',
+        'Плохое качество, сломалось',
+        'Нормально, но дороговато',
+        'Супер! рекомендую всем',
+        'Ужас, не покупайте',
+        'Хорошо, спасибо',
+        'Так себе, разочарован',
+        'Прекрасно, буду заказывать еще',
+        'Не понравилось, брак',
+        'Отлично, быстро доставили'
+    ]
+})
+
+# Очистка
+data['clean'] = data['text'].str.lower().str.replace('[^а-яa-z\s]', '', regex=True)
+
+# Частотный анализ
+words = ' '.join(data['clean']).split()
+top_words = Counter(words).most_common(5)
+print("Топ-5 слов:", top_words)
+
+# Тональность
+good = ['отличный', 'хороший', 'супер', 'прекрасно', 'доволен', 'спасибо']
+bad = ['плохой', 'ужас', 'сломалось', 'брак', 'разочарован']
+
+def get_sentiment(text):
+    pos = sum(1 for w in text.split() if w in good)
+    neg = sum(1 for w in text.split() if w in bad)
+    return 'positive' if pos > neg else 'negative' if neg > pos else 'neutral'
+
+data['sentiment'] = data['clean'].apply(get_sentiment)
+
+# Результат
+print("\nРаспределение тональности:")
+print(data['sentiment'].value_counts())
+
+# График
+data['sentiment'].value_counts().plot(kind='bar', color=['green', 'gray', 'red'])
+plt.title('Тональность отзывов')
+plt.show()
+
+print("\n✅ ГОТОВО!")
